@@ -1,0 +1,70 @@
+---
+title: "Data model"
+description: "Key Supabase tables and RPCs used by the portal"
+---
+
+This page is the short version of the Supabase data model.
+
+It is meant to answer:
+
+- which table owns this piece of portal state?
+- which records are local-only versus mirrored from JobTread logic?
+
+## Core access and identity tables
+
+| Table | Purpose |
+| --- | --- |
+| `profiles` | User profile data such as full name and email |
+| `user_roles` | Role assignment for each user |
+| `access_passcodes` | One-time access passcodes and their usage metadata |
+
+## Dashboard and configuration tables
+
+| Table | Purpose |
+| --- | --- |
+| `dashboards` | Local mapping from JobTread job to portal experience, plus assignment and mode flags |
+| `cost_code_parents` | Parent-child cost-code mapping used for restriction inheritance |
+| `restricted_cost_codes` | Parent code families that are accounting-only |
+| `task_assignees` | JobTread membership IDs used for approval-task notifications |
+| `job_settings` | Per-job export, waiver, legal, and approved-value settings |
+| `share_links` | Public specification-sharing tokens, activation state, and expiration |
+
+## Draw workflow tables
+
+| Table | Purpose |
+| --- | --- |
+| `invoice_draws` | Draw package header and workflow metadata |
+| `invoice_draw_items` | Line items stored for a draw package |
+| `invoice_draw_bills` | Local vendor-bill records created and tracked through draw workflow |
+| `lien_waivers` | Local waiver tracking records tied to draws and optionally bills |
+
+## Important RPCs
+
+| RPC | Purpose |
+| --- | --- |
+| `approve_invoice_draw_atomic` | Marks a draw ready and creates related local bill state atomically |
+| `update_invoice_draw_atomic` | Updates draw header and item state together |
+| `validate_passcode` | Validates a passcode without exposing raw passcode records directly |
+
+## Fields that matter often
+
+- `dashboards.assigned_user_id`: the client assignment check for dashboard access
+- `dashboards.minimal_portal`: turns on 40-40-20 mode
+- `dashboards.show_invoice_draw`: controls whether client-facing financial views are hidden
+- `job_settings.use_price_for_approved`: switches approved-value basis from customer-order cost to price
+- `invoice_draws.jobtread_invoice_id`: stores the linked JobTread customer invoice for standard draws
+- `invoice_draw_bills.jobtread_bill_id`: stores the linked JobTread vendor bill when a local bill is synced or approved
+- `share_links.expires_at`: optional expiration for public specification links
+- `profiles.needs_password_reset`: profile-level password-reset flag exposed in user management
+
+## Data ownership reminders
+
+| Data family | Owner |
+| --- | --- |
+| Jobs and JobTread documents | JobTread |
+| Portal workflow, settings, and access | Supabase |
+
+## Related pages
+
+- [Integrations](/reference/integrations)
+- [JobTread data flow](/core/jobtread-data-flow)

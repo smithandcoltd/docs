@@ -1,0 +1,97 @@
+---
+title: "Construction finance basics"
+description: "The domain concepts behind invoice draws, sign-off packages, and supporting documents"
+---
+
+This app uses construction-finance language very directly. This page is the short version of the terms you need most often.
+
+You do not need an accounting background to follow the rest of the docs. You just need a clear mental model for terms like **draw**, **SOV**, **vendor bill**, and **customer invoice**.
+
+## Core documents
+
+| Term | Meaning in practice |
+| --- | --- |
+| Draw | A request for payment for work completed so far |
+| Statement of Values (SOV) | The table that breaks the job into billable pieces |
+| Customer order | The client-side document that approves scope and value |
+| Vendor order (PO) | The commitment to a vendor or subcontractor |
+| Vendor bill | The vendor's request to be paid |
+| Customer invoice | The invoice sent to the client |
+| Change order | A change to scope, contract value, or schedule after the original agreement |
+| Lien waiver | A legal document tied to payment that releases lien rights |
+
+## Draws and billing periods
+
+A draw is usually prepared on a recurring billing cycle, often monthly. The simple flow is:
+
+1. Review what work is complete.
+2. Decide how much of each line should be billed now.
+3. Submit a draw or sign-off package.
+4. Route it for approval.
+5. Create or update the downstream records that support payment.
+
+## Statement of Values
+
+The SOV is the main working table in the standard draw workflow.
+
+The simplest way to think about it:
+
+- each row is one piece of job scope
+- each row shows what was approved
+- each row shows what has already been billed
+- each row helps the team decide what to bill next
+
+Common columns include:
+
+| Column | Meaning |
+| --- | --- |
+| Approved | The amount the contract allows for that line |
+| Committed | The amount committed on the cost side, usually through a PO |
+| Previous billed | What has already been billed to the client |
+| This draw | What the team wants to bill now |
+| Remaining | What is left after prior billings |
+| Percent complete | A progress indicator calculated from the portal's billing logic |
+
+One important app rule is easy to miss:
+
+- **Customer invoices** are the source of truth for `previous billed` in the schedule logic.
+- **Vendor bills** matter for bill tracking, syncing, and document workflows, but they do not drive the SOV's prior billed total.
+
+## Cost-plus versus fixed-price
+
+This system is designed around a **cost-plus** model.
+
+- Profit is not assumed to be hidden inside every line.
+- Overhead and profit can appear as explicit lines.
+- Approved and committed amounts can come from different document sets.
+
+That is why the portal does not behave like a simple fixed-price invoicing tool.
+
+## Change orders
+
+Change orders adjust the contract after the original agreement.
+
+- Positive change orders increase contract value
+- Negative change orders decrease contract value
+- The portal displays a running contract total over approved documents
+
+## Lien waivers
+
+Lien waivers are supporting legal documents tied to vendor payments.
+
+| Waiver type | Timing |
+| --- | --- |
+| Partial conditional | Before a progress payment clears |
+| Partial unconditional | After a progress payment clears |
+| Final conditional | Before final payment clears |
+| Final unconditional | After final payment clears |
+
+## Retainage
+
+Retainage is money held back until later in the job. It matters in construction finance generally, but it is not the main thing to keep in mind while reading this portal documentation.
+
+## Related pages
+
+- [OPBG financial model](/concepts/opbg-financial-model)
+- [Invoice draw system](/core/invoice-draw-system)
+- [Glossary](/reference/glossary)

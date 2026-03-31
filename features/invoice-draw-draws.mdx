@@ -1,0 +1,87 @@
+---
+title: "Invoice draw draws"
+description: "How draw packages are created, updated, submitted, approved, rejected, and marked paid"
+---
+
+The **Draws** tab is the workflow surface for managing draw packages across their lifecycle.
+
+This is the page where a draft becomes a real package that can be reviewed and approved.
+
+## What users can do here
+
+- create a new draw package
+- edit draft packages
+- submit packages for approval
+- approve or reject pending packages
+- revert ready packages to draft when needed
+- mark packages paid
+
+## Data source
+
+The tab reads local draw packages from:
+
+- `invoice_draws`
+- `invoice_draw_items`
+- `invoice_draw_bills`
+
+The frontend assembles those records through `useInvoiceDraws`.
+
+In standard mode, the tab also merges in JobTread customer invoices so finalized work is still visible after approval. That is why some rows can appear as **External** when they were created directly in JobTread.
+
+## Creation behavior
+
+Creating a draw:
+
+- stores a local draw with status `draft`
+- creates local draw items
+- does **not** create vendor bills yet
+
+Vendor bills are created later as part of the approval flow.
+
+## Draw number behavior
+
+- Users can specify an alphanumeric draw number.
+- If they do not, the app auto-increments from existing numeric draw numbers.
+- The code includes retry logic for draw-number conflicts.
+
+## Submission behavior
+
+Submitting a draw:
+
+- changes status from `draft` to `pending_approval`
+- records who submitted it and when
+- tries to create a JobTread task for configured task assignees
+
+## Approval behavior
+
+In standard mode:
+
+- approval creates a JobTread customer invoice unless one already exists
+- the app stores the JobTread invoice ID
+- the atomic RPC marks the draw ready and creates local pending bill records for eligible items
+
+In 40-40-20 mode:
+
+- approval skips customer invoice creation
+- the atomic RPC still marks the package ready and creates local pending bill records
+
+## Rejection and reversal
+
+| Action | Result |
+| --- | --- |
+| Reject pending draw | Returns it to `draft` with a rejection note |
+| Revert ready draw to draft | Voids the JobTread invoice first, then resets the local package |
+| Mark draw paid | Sets draw status to `paid` and updates local bill statuses |
+
+## What the list can contain
+
+Depending on mode, the list is not always "just local draws."
+
+- In **standard mode**, draft and pending packages come from local Supabase draw records, while approved or paid invoice records can be represented by synced JobTread customer invoices.
+- In **40-40-20 mode**, approved packages stay visible as local draw records because there is no JobTread customer invoice step.
+
+## Related pages
+
+- [Invoice draw system](/core/invoice-draw-system)
+- [40-40-20 sign-off](/core/sign-off-4020)
+- [Vendor bills](/features/vendor-bills)

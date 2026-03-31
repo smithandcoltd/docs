@@ -1,0 +1,55 @@
+---
+title: "Contractor Summary"
+description: "How the Statement of Values is displayed on the dashboard and what rules shape its data"
+---
+
+The **Contractor Summary** tab is the dashboard's Statement of Values view in standard mode.
+
+This is the page that answers the question, "What has been approved, what has already been billed, and what is left?"
+
+## Availability
+
+| Mode | Visible to clients? |
+| --- | --- |
+| Standard draw | Yes |
+| Hide financials | No |
+| 40-40-20 | No |
+
+Internal users can still work in the invoice-draw route regardless of whether the client-facing dashboard hides financials.
+
+## What the page shows
+
+- the Statement of Values table for the job
+- a refresh control for internal users
+- restricted-code display rules based on settings and role
+
+Related but separate: the dashboard route also shows a contract summary card above the tabs with original contract, change-order total, current contract total, and close-date information.
+
+## Data sources
+
+| Data | Source |
+| --- | --- |
+| Contract summary metrics | `fetch-contract-summary` |
+| SOV rows | `fetch-invoice-schedule` |
+| Approved-value basis and export naming | `job_settings` |
+| Restricted-code presentation behavior | restricted-code tables plus parent mappings |
+
+## SOV behavior
+
+The tab renders the parent-phase view of the Statement of Values.
+
+Important rules:
+
+- approved value comes from customer orders
+- previous billed comes from customer invoices, not vendor bills
+- restricted code families follow admin-only rules
+- the approved-value basis can switch from customer-order cost to customer-order price through `job_settings.use_price_for_approved`
+
+## Visibility rules
+
+The dashboard route checks which tabs are visible for the current mode. If a user lands on a hidden tab through the URL, the route redirects them to the correct default tab.
+
+## Related pages
+
+- [Invoice draw schedule](/features/invoice-draw-schedule)
+- [JobTread data flow](/core/jobtread-data-flow)

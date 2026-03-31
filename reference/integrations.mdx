@@ -1,0 +1,68 @@
+---
+title: "Integrations"
+description: "Edge Functions and external integration points used by the portal"
+---
+
+This page lists the main integration points between the portal and JobTread.
+
+Use it when you already know what area of the app you are in and you want to answer, "Which function is behind this?"
+
+## Core financial and project reads
+
+| Function | Main use |
+| --- | --- |
+| `fetch-invoice-schedule` | Builds SOV and related invoice-draw data |
+| `fetch-contract-summary` | Dashboard contract schedule summary |
+| `fetch-contractor-summary` | Contractor-side vendor summary data |
+| `fetch-change-orders` | Approved change-order list and totals |
+| `fetch-specifications` | Specifications and share-link-backed public view |
+| `fetch-customer-invoices` | JobTread customer invoice data |
+| `fetch-signoff-rows` | 40-40-20 PO-line-item workflow data |
+
+## Job and organization reads
+
+| Function | Main use |
+| --- | --- |
+| `fetch-jobtread-jobs` | Available jobs when creating dashboards |
+| `fetch-org-cost-codes` | Full organization cost-code catalog |
+| `fetch-jobtread-memberships` | Membership list for task assignee management |
+
+## Write-side integrations
+
+| Function | Main use |
+| --- | --- |
+| `create-jobtread-invoice` | Creates JobTread customer invoices during draw approval |
+| `create-jobtread-vendor-bill` | Vendor bill write integration |
+| `void-jobtread-invoice` | Voids JobTread customer invoices when reverting |
+| `void-jobtread-vendor-bill` | Vendor bill void flow |
+| `sync-vendor-bills` | Reconciles vendor bill state with JobTread |
+| `create-jobtread-task` | Creates review tasks in JobTread when a draw is submitted |
+
+## User and account management functions
+
+| Function | Main use |
+| --- | --- |
+| `issue-user-passcode` | Admin-triggered passcode issuance |
+| `update-user` | User maintenance |
+| `delete-user` | User removal |
+
+The current Admin UI primarily uses `issue-user-passcode`, `update-user`, and `delete-user`.
+
+## Document and attachment helpers
+
+| Function | Main use |
+| --- | --- |
+| `fetch-vendor-documents` | Vendor document lookup |
+| `fetch-vendor-documents-batch` | Batch vendor document lookup |
+
+## Integration patterns to remember
+
+- Most Edge Functions validate access before talking to JobTread.
+- Public specification access is the main no-auth exception, driven by share-token validation.
+- The app often combines local Supabase state with JobTread reads in one UI surface.
+- Submission-task creation is non-blocking: the local workflow can succeed even if the JobTread task step fails.
+
+## Related pages
+
+- [System overview](/core/system-overview)
+- [Data model](/reference/data-model)

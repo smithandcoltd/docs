@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "OPBG Clients Portal",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
@@ -17,71 +17,59 @@
             "group": "Getting started",
             "pages": [
               "index",
-              "quickstart",
-              "development"
+              "overview/roles-and-access",
+              "overview/portal-modes"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Construction finance concepts",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "concepts/construction-finance-basics",
+              "concepts/opbg-financial-model"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Core logic",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              "core/system-overview",
+              "core/jobtread-data-flow",
+              "core/invoice-draw-system",
+              "core/sign-off-4020"
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Features",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
+              "features/dashboards",
+              "features/contractor-summary",
+              "features/change-orders",
+              "features/specifications",
+              "features/invoice-draw-schedule",
+              "features/invoice-draw-draws",
+              "features/vendor-bills",
+              "features/admin-panel",
+              "features/auth-and-passcodes"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Technical reference",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "reference/roles-and-permissions",
+              "reference/data-model",
+              "reference/integrations",
+              "reference/glossary"
+            ]
+          },
+          {
+            "group": "Contributing",
+            "pages": [
+              "contributing/docs-workflow"
             ]
           }
         ]
       }
     ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    "global": {}
   },
   "logo": {
     "light": "/logo/light.svg",
@@ -90,14 +78,14 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "Source repo",
+        "href": "https://github.com/smithandcoltd/opbg-clients"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "Docs repo",
+      "href": "https://github.com/smithandcoltd/docs"
     }
   },
   "contextual": {
@@ -112,11 +100,5 @@
      "vscode"
    ]
   },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
-  }
+  "footer": {}
 }

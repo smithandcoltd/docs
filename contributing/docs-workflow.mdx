@@ -1,0 +1,81 @@
+---
+title: "Docs workflow"
+description: "How to maintain this Mintlify site and how it relates to the application source repository"
+---
+
+This docs site is maintained in a separate repository from the application code.
+
+## Repository split
+
+| Repository | Purpose |
+| --- | --- |
+| `smithandcoltd/opbg-clients` | Product source code and source material |
+| `smithandcoltd/docs` | Mintlify content and site configuration |
+
+## Source-of-truth policy
+
+Use the application code as the final authority.
+
+Check these areas first:
+
+1. `src/App.tsx` for routes
+2. `src/utils/workflowMode.ts` for portal-mode behavior
+3. `src/pages/**` and `src/components/**` for user-visible behavior
+4. `src/hooks/**` for fetch and mutation logic
+5. `supabase/functions/**` for JobTread integration and transformation rules
+
+Older markdown in `opbg-clients/docs/**` is source material, not final authority.
+
+In plain English: if the docs and the app disagree, update the docs to match the app.
+
+That includes older implementation notes such as `docs/CLAUDE.md`. Those files may be useful for historical context, but they are not a reliable source for current product behavior.
+
+## Local development
+
+<Steps>
+<Step title="Install Mintlify CLI">
+
+```bash
+npm i -g mint
+```
+</Step>
+
+<Step title="Run the local preview">
+
+```bash
+mint dev
+```
+</Step>
+
+<Step title="Validate links before merging">
+
+```bash
+mint broken-links
+```
+</Step>
+</Steps>
+
+## Writing expectations
+
+- Keep pages operational and concrete
+- Write from the code outward: route, page, hook, function, then table if needed
+- Document sensitive internal behavior when it affects the real workflow
+- Prefer tables for permissions, state ownership, and workflow comparisons
+- Avoid duplicating the same behavior in multiple pages unless a short cross-reference is not enough
+- Prefer the clearest explanation over the most technical wording
+- Prefer plain-English explanations first, then add the implementation detail that proves them
+
+## Update checklist
+
+Use this checklist when app behavior changes:
+
+- Does route access change?
+- Do portal mode rules change?
+- Did a new Edge Function or RPC become user-visible?
+- Did a financial source-of-truth rule change?
+- Did a tab or admin setting gain new behavior?
+
+## Related pages
+
+- [Integrations](/reference/integrations)
+- [Roles and permissions](/reference/roles-and-permissions)

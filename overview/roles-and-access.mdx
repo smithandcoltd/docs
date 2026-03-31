@@ -1,0 +1,75 @@
+---
+title: "Roles and access"
+description: "Route access, role normalization, and action-level permissions"
+---
+
+The app works with a simple three-role model in the UI:
+
+- **Admin**
+- **Superintendent**
+- **Client**
+
+There are older role names in the database, but the app normalizes them:
+
+- `user` is treated as **superintendent**
+- `viewer` is treated as **client**
+
+## The simple version
+
+- **Admins** can manage the system and approve finance workflows.
+- **Superintendents** can work inside the internal project workflow, but they do not get admin-only powers.
+- **Clients** can only see dashboards assigned to them.
+
+## Route access
+
+| Route | Admin | Superintendent | Client | Notes |
+| --- | --- | --- | --- | --- |
+| `/auth` | Yes | Yes | Yes | Public sign-in route |
+| `/` | Yes | Yes | No | Internal landing page |
+| `/admin` | Yes | No | No | Admin-only panel |
+| `/viewer-home` | Yes | Yes | Yes | Clients use this page; internal users are redirected back to `/` |
+| `/dashboard/:jobNumber` | Yes | Yes | Yes | Clients are limited to assigned dashboards |
+| `/invoice-draw/:jobNumber/*` | Yes | Yes | No | Internal-only financial workflow |
+| `/share/specifications/:token` | Yes | Yes | Yes | Public token route with no auth required |
+
+## What each role is expected to do
+
+| Role | Primary use |
+| --- | --- |
+| Admin | Run the system, manage users and settings, approve draws, and control bill workflows |
+| Superintendent | Work on job pages, prepare draw packages, and submit work for approval |
+| Client | View assigned project information and client-facing portal content |
+
+## What each role can do
+
+| Permission | Admin | Superintendent | Client |
+| --- | --- | --- | --- |
+| View internal dashboard list | Yes | Yes | No |
+| Access admin panel | Yes | No | No |
+| Create and edit draws | Yes | Yes | No |
+| Submit draws for approval | Yes | Yes | No |
+| Approve or reject draws | Yes | No | No |
+| Modify vendor bills | Yes | No | No |
+| View assigned dashboards | Yes | Yes | Yes, assigned only |
+| Create and manage specification share links | Yes | Yes | No |
+
+## Client access checks
+
+Client access is job-by-job, not app-wide.
+
+- A client can only view dashboards whose `assigned_user_id` matches their user ID.
+- If a client has one assigned dashboard, the app redirects them directly into it.
+- If a client has no assigned dashboards, the app shows a no-access state in **Viewer Home**.
+
+## Session validation
+
+Protected routes do more than check for a local session. They also validate that the server still accepts that session.
+
+- If the Supabase session is invalid, the app signs the user out and sends them back to `/auth`.
+- Clients who try to go to `/` are redirected to `/viewer-home`.
+- Superintendents who try to open `/admin` are redirected back to `/`.
+
+## Related pages
+
+- [Portal modes](/overview/portal-modes)
+- [Roles and permissions reference](/reference/roles-and-permissions)

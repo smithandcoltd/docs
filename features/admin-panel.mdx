@@ -1,0 +1,74 @@
+---
+title: "Admin panel"
+description: "The internal configuration area for users, archived dashboards, cost-code restrictions, and task assignees"
+---
+
+The **Admin Panel** is the admin-only management area at `/admin`.
+
+Most project work happens outside this page. The Admin Panel is where admins configure how the portal itself behaves.
+
+## Tabs
+
+| Tab | Purpose |
+| --- | --- |
+| User Management | Create users, manage roles, issue passcodes, and inspect account state |
+| Archived Dashboards | Restore archived dashboards |
+| Cost Code Settings | Manage accounting-only parent cost-code families |
+| Task Assignees | Configure who receives JobTread tasks when draws are submitted |
+
+## User Management
+
+This tab is the main access-control surface for the portal.
+
+Common actions:
+
+- create a user invite
+- choose the user's role
+- save or update a full name
+- edit an existing user
+- reissue a passcode for an existing user
+- view account details such as invite timing and last sign-in
+- revoke an unused passcode
+- delete a user through the admin backend flow
+
+One important code detail: the passcode issue flow handles both brand-new users and existing users. For existing users, it updates their password and role instead of creating a second account.
+
+## Cost Code Settings
+
+This tab manages restricted parent cost-code phases.
+
+Important rules:
+
+- restrictions are configured on parent codes
+- child codes inherit the restriction
+- these restrictions hide certain financial lines from superintendents
+- restricted families also affect sign-off and export behavior
+
+The page reads the parent-code universe from JobTread and stores the accounting-only choices locally in `restricted_cost_codes`.
+
+## Task Assignees
+
+Task assignees are the JobTread memberships that should receive review tasks when a draw or sign-off package is submitted.
+
+The workflow:
+
+1. fetch available JobTread memberships when the dialog opens
+2. add selected memberships to `task_assignees`
+3. toggle them active or inactive
+4. remove them if no longer needed
+
+If there are no active assignees, draw submission still works. The JobTread task step is simply skipped.
+
+## Archived Dashboards
+
+Archived dashboards stay in Supabase but disappear from the active internal list until an admin restores them.
+
+Archiving is different from deleting:
+
+- **Archive** keeps the dashboard record for later restoration.
+- **Delete** permanently removes the dashboard record.
+
+## Related pages
+
+- [Dashboards](/features/dashboards)
+- [Roles and permissions reference](/reference/roles-and-permissions)

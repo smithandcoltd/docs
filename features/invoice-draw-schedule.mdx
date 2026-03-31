@@ -1,0 +1,72 @@
+---
+title: "Invoice draw schedule"
+description: "How the schedule tab builds the SOV-backed draw input surface"
+---
+
+The **Schedule** tab is the primary working surface for standard invoice draws.
+
+This is the page where the team reviews the current SOV before creating or editing a draw.
+
+## Availability
+
+| Mode | Schedule tab visible? |
+| --- | --- |
+| Standard draw | Yes |
+| Hide financials | Yes, for internal users |
+| 40-40-20 | No |
+
+## Purpose
+
+The schedule gives internal users the current Statement of Values plus the calculation context behind it.
+
+## Data source
+
+The tab relies on `fetch-invoice-schedule`, which returns:
+
+- statement of values rows
+- parent-phase view
+- vendor bills fetched from JobTread
+- supporting job and customer information
+
+## Important calculation rules
+
+- Approved values come from customer orders
+- Committed values come from vendor orders
+- Previous billed values come from customer invoices
+- Vendor bills help with sync and reference behavior, but they do not drive the billed totals shown in the SOV
+
+## Job settings impact
+
+Job settings can change the financial presentation.
+
+Most importantly, `use_price_for_approved` changes whether approved values use:
+
+- customer-order cost
+- or customer-order price
+
+The schedule also depends on job settings for company naming and downstream document behavior.
+
+## Restricted code handling
+
+Restricted parent codes affect the schedule workflow in multiple ways.
+
+- Restricted families are hidden from superintendents in relevant creation flows
+- Export and grouping behavior can use company-level fallback naming
+- Parent-child inheritance matters when deciding whether a row is restricted
+
+## What this page actually does
+
+The Schedule tab itself is mainly a read-and-review surface. It renders the Statement of Values table and lets the user refresh the underlying data.
+
+When the user moves into draw creation or editing, the schedule data is what supplies the line-item context, including:
+
+- job cost item references
+- vendor information
+- draw amount
+- prior billed amounts
+- input mode
+
+## Related pages
+
+- [Invoice draw system](/core/invoice-draw-system)
+- [OPBG financial model](/concepts/opbg-financial-model)

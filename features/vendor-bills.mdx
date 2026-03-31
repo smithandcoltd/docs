@@ -1,0 +1,94 @@
+---
+title: "Vendor bills"
+description: "How local and synced vendor bills are displayed, linked, approved, and reconciled"
+---
+
+The **Vendor Bills** tab is an admin-only internal surface for bill review and reconciliation.
+
+## Access
+
+Only users with bill-modification permission can view the tab. In practice, that means admins. Non-admin users are redirected back to the Draws tab.
+
+## Why the page exists
+
+The page brings together two kinds of bill records:
+
+- local bill records created through draw approval
+- synced JobTread vendor bills that already exist in the source system
+
+That is why this page is mainly a reconciliation and follow-through page, not the place where the original draw is assembled.
+
+## Unified bill model
+
+The UI merges:
+
+1. local draft and workflow-linked bills from Supabase
+2. JobTread bills returned by `fetch-invoice-schedule`
+
+Important behaviors:
+
+- synced JobTread IDs are tracked to avoid duplicate display
+- older local duplicates without JobTread links can be suppressed when a synced sibling exists
+- orphan JobTread bills still appear even when not linked to a local draw
+
+## Sync states
+
+| Sync state | Meaning |
+| --- | --- |
+| `pending_sync` | Local-only bill not yet synced or linked |
+| `synced` | Local bill is linked to a JobTread bill |
+| `missing_in_jobtread` | Local record expects a JobTread bill that is not present in the current sync |
+| `orphan_jobtread` | JobTread bill exists without a local portal draw link |
+
+## Available actions
+
+- sync bills from JobTread
+- link unlinked bills to a local draw
+- approve bills
+- revert bills to pending
+- delete bills in allowed workflow states
+- generate draw PDFs or DOCX outputs
+- generate waivers
+
+## What approval means here
+
+Approving a bill from this tab does two things:
+
+1. creates the vendor bill in JobTread
+2. updates the local bill status to `approved`
+
+Reverting an approved bill does the reverse workflow: the app voids the JobTread bill and returns the local record to `pending`.
+
+## Linking unlinked bills
+
+The link dialog only offers:
+
+- bills without a linked local draw
+- bills that already have a JobTread bill ID
+- local draws in `ready` or `paid` state
+
+This is how the app reconnects a JobTread bill back to a local draw record when the link was missing.
+
+The dialog intentionally ignores bills that are already linked or bills that do not yet have a JobTread bill ID.
+
+## Restricted-code handling
+
+Restricted bill items are filtered out of some display and matching flows so the bills tab reflects the admin-only visibility model correctly.
+
+## Waivers
+
+Waiver records are local Supabase records tied to draws and, when available, bills.
+
+The waiver tracking layer stores:
+
+- waiver type
+- status
+- amount
+- through date
+- file URL
+- approval timestamps
+
+## Related pages
+
+- [Invoice draw draws](/features/invoice-draw-draws)
+- [Data model](/reference/data-model)

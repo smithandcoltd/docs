@@ -1,0 +1,87 @@
+---
+title: "Dashboards"
+description: "How dashboards connect JobTread jobs to the portal and how mode and assignment settings work"
+---
+
+In this product, a **dashboard** is the portal's local record that connects a JobTread job to the app.
+
+So a dashboard is not the job itself. It is the portal's wrapper around the job.
+
+## What a dashboard stores
+
+The dashboard record is local to Supabase and includes:
+
+- job number
+- customer display name
+- JobTread job ID
+- active versus archived state
+- optional assigned client user
+- property address
+- portal mode flags
+
+## Who uses this surface
+
+| Role | Use |
+| --- | --- |
+| Admin | Create, archive, restore, assign, sync, and configure dashboards |
+| Superintendent | Browse active dashboards and open project pages |
+| Client | View only assigned dashboards |
+
+One important UI detail: the internal home page at `/` is shared by admins and superintendents, but only admins get the create and edit controls.
+
+## Create dashboard flow
+
+From the internal home page, an admin:
+
+1. Click **Dashboard**.
+2. Search JobTread jobs by number, name, or customer.
+3. Select the job to connect.
+4. Optionally assign a client.
+5. Set portal mode flags.
+6. Create the dashboard.
+
+The dialog fetches the available JobTread job list when it opens.
+
+## Portal mode controls
+
+Dashboard creation and later editing can set:
+
+- **Hide Financials**
+- **40-40-20 Mode**
+
+These options are mutually exclusive. The dashboard record normalizes these flags so 40-40-20 takes precedence.
+
+## Assignment behavior
+
+- Dashboards can be assigned to a client user.
+- Client users only see assigned active dashboards.
+- Internal users can see all active dashboards.
+- A client with exactly one assigned dashboard is redirected straight into it from Viewer Home.
+
+## Archive and restore
+
+Archiving does not delete the dashboard. It simply marks it inactive.
+
+- Archived dashboards disappear from the main internal list.
+- Admins can restore them from the Admin Panel.
+- Admins can also permanently delete a dashboard record if needed.
+
+## Sync behavior
+
+The dashboard sync action refreshes local customer name and property address from JobTread.
+
+That is useful when the local dashboard record is stale but the JobTread job is current.
+
+## Navigation behavior
+
+Each dashboard row gives internal users two main entry points:
+
+- **View Dashboard** opens the client-facing dashboard route.
+- the finance action button opens `/invoice-draw/:jobNumber`.
+
+The label of that finance action changes with mode, so a 40-40-20 dashboard shows a sign-off-oriented action instead of the normal draw label.
+
+## Related pages
+
+- [Portal modes](/overview/portal-modes)
+- [Admin panel](/features/admin-panel)

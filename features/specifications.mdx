@@ -1,0 +1,82 @@
+---
+title: "Specifications"
+description: "How specification content is aggregated, searched, and shared"
+---
+
+The **Specifications** tab gives users a searchable view of scope and specification text pulled from JobTread documents.
+
+In simpler terms, it is the "what was included?" page.
+
+## What the page shows
+
+For each specification entry, the page can display:
+
+- cost code
+- title
+- vendor label
+- original contract content
+- approved change-order content
+- document links back to JobTread
+
+In the authenticated dashboard view, the page also supports:
+
+- search
+- expand or collapse behavior
+- a print-friendly view
+- share-link generation
+
+## Data source
+
+The page uses `fetch-specifications`.
+
+At a high level, that function:
+
+- validates either job access or a public share token
+- queries customer-order-type documents from JobTread
+- reads cost items from those documents
+- maps cost codes to vendor names
+- assembles original-contract and change-order context into one specification object
+
+## Search behavior
+
+Search checks combined text from:
+
+- cost code
+- title
+- vendor
+- original contract names and descriptions
+- change-order names and descriptions
+
+All entered terms must match for a result to remain visible.
+
+## Share-link flow
+
+The authenticated page can generate a public specifications link from this tab.
+
+### Link creation
+
+- The user must be signed in.
+- The dashboard must be connected to JobTread.
+- The app checks for an existing active share link for the dashboard.
+- If one exists, it reuses the token.
+- Otherwise it creates a new `share_links` record.
+- The generated URL points to `/share/specifications/:token`.
+
+Important permission note: the UI only checks that the user is signed in, but actual create and management permission comes from `share_links` policies. In practice, this flow is intended for staff users, not clients.
+
+### Public route behavior
+
+The public specifications route:
+
+- does not require authentication
+- validates the token through the Edge Function
+- rejects inactive, invalid, or expired links
+- returns only the data needed for specification viewing
+
+The public route intentionally uses a direct fetch instead of the normal authenticated Supabase function helper so stale local auth state does not interfere with token-based access.
+
+## Related pages
+
+- [Dashboards](/features/dashboards)
+- [Data model](/reference/data-model)
+- [Integrations](/reference/integrations)

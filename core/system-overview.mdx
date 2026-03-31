@@ -1,0 +1,83 @@
+---
+title: "System overview"
+description: "The main application surfaces, where state lives, and how the portal is structured"
+---
+
+The OPBG Clients Portal is a React app backed by Supabase and connected to JobTread.
+
+The shortest useful description is:
+
+- **JobTread** is the main source for job, document, and finance data.
+- **Supabase** stores the portal's own workflow records, permissions, and settings.
+- **The React app** turns those sources into pages, tabs, and actions that match OPBG's process.
+
+## High-level architecture
+
+| Layer | Responsibility |
+| --- | --- |
+| React app | Routes, tabs, permissions, local UI state, and React Query caching |
+| Supabase tables and RPCs | Dashboard records, roles, draw workflow records, bills, settings, share links, waivers |
+| Supabase Edge Functions | The controlled layer that reads from or writes to JobTread |
+| JobTread | The system of record for jobs, orders, invoices, bills, memberships, and specifications |
+
+## Main product surfaces
+
+| Surface | Route | Purpose |
+| --- | --- | --- |
+| Auth | `/auth` | Sign in with email and passcode |
+| Internal home | `/` | Dashboard list and management entry point for admins and superintendents |
+| Admin panel | `/admin` | Internal configuration and management |
+| Viewer home | `/viewer-home` | Client landing page for assigned dashboards |
+| Dashboard | `/dashboard/:jobNumber` | Contract summary, change orders, specifications, and mode-based portal views |
+| Invoice Draw | `/invoice-draw/:jobNumber/*` | Internal draw and sign-off workflows |
+| Public specifications | `/share/specifications/:token` | External no-auth specs viewer |
+
+## Where state lives
+
+When you are debugging, start by asking which system really owns the thing you are looking at.
+
+| State type | Source of truth |
+| --- | --- |
+| Dashboard metadata | Supabase `dashboards` table |
+| User auth session | Supabase Auth |
+| User role | Supabase `user_roles` table, normalized in app code |
+| JobTread job and finance data | JobTread via Edge Functions |
+| Draw packages and statuses | Supabase `invoice_draws`, `invoice_draw_items`, `invoice_draw_bills`, plus RPCs |
+| Job settings for waivers and exports | Supabase `job_settings` |
+| Shareable spec links | Supabase `share_links` |
+| Task assignees | Supabase `task_assignees` |
+| Restricted code families | Supabase `restricted_cost_codes` |
+| Waiver tracking | Supabase `lien_waivers` |
+
+## React Query usage
+
+React Query is the frontend cache, not the data owner.
+
+- Reads from Supabase and Edge Functions are cached in the browser.
+- Some expensive JobTread-backed queries are prefetched so tab switches feel faster.
+- After writes, the app invalidates and reloads the affected queries.
+- If something looks wrong after a change, check the underlying table or function, not just the cached result.
+
+## Mode-aware behavior
+
+The same dashboard can behave very differently depending on its mode flags.
+
+- Standard draw mode uses the Statement of Values model
+- Hide financials changes portal visibility for clients
+- 40-40-20 changes both tabs and approval side effects
+
+## Practical ownership rule
+
+When you need to debug behavior:
+
+1. Start at the route component.
+2. Find the hook used by that page.
+3. Find the table or Edge Function behind that hook.
+4. Ask whether the real owner is Supabase or JobTread.
+5. Only then decide whether you are fixing UI logic, portal state, or integration logic.
+
+## Related pages
+
+- [JobTread data flow](/core/jobtread-data-flow)
+- [Invoice draw system](/core/invoice-draw-system)
+- [Integrations reference](/reference/integrations)

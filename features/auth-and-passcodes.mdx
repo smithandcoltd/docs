@@ -1,0 +1,81 @@
+---
+title: "Auth and passcodes"
+description: "How sign-in works, how passcodes are consumed, and where roles come from"
+---
+
+The portal uses Supabase Auth for sessions and a portal-specific passcode flow for access.
+
+The easiest way to think about sign-in:
+
+- Supabase handles the authenticated session
+- the portal uses passcodes as the sign-in credential
+- the user's role still comes from the database, not from the login form
+
+## Sign-in experience
+
+The sign-in page asks for:
+
+- email
+- access passcode
+- optional remember-me preference
+
+After sign-in:
+
+- admins and superintendents go to `/`
+- clients go to `/viewer-home`
+
+## Remember-me behavior
+
+- When remember me is enabled, the session can persist
+- When it is disabled, the app marks the session temporary and clears it on browser close
+
+## Passcode behavior
+
+There are two main passcode paths in the code.
+
+### Existing user
+
+- The passcode is tried as the current password
+- If it succeeds and an unused matching passcode exists, that passcode record is marked used
+- The user keeps their existing role
+
+### First-time invited user
+
+- The app validates the passcode through the `validate_passcode` RPC
+- If the passcode is valid, the app signs up the user in Supabase Auth
+- The passcode becomes that user's initial password
+- The matching `access_passcodes` row is marked used
+
+## Role source
+
+Role is fetched from `user_roles`.
+
+Legacy values are normalized in code:
+
+- `user` becomes superintendent
+- `viewer` becomes client
+
+## Admin-issued access
+
+Admins issue or reissue access through the passcode-management flow in the Admin Panel.
+
+For an existing user, that admin action updates the user's password and role if needed.
+
+For a not-yet-created user, that admin action creates a pending passcode invitation tied to the email address.
+
+## Password changes
+
+Signed-in users can change their own password from the account menu.
+
+## Route protection
+
+Protected routes:
+
+- validate local auth state
+- validate the server-side session
+- redirect based on the user's normalized role
+
+## Related pages
+
+- [Roles and access](/overview/roles-and-access)
+- [Admin panel](/features/admin-panel)

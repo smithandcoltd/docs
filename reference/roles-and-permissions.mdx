@@ -1,0 +1,66 @@
+---
+title: "Roles and permissions"
+description: "Operational reference for routes, role normalization, and key action permissions"
+---
+
+This page is the quick-reference version of the permissions model.
+
+## Canonical UI roles
+
+| Stored role | UI role |
+| --- | --- |
+| `admin` | Admin |
+| `superintendent` | Superintendent |
+| `user` | Superintendent |
+| `client` | Client |
+| `viewer` | Client |
+
+## Route rules
+
+| Route | Allowed roles |
+| --- | --- |
+| `/` | Admin, Superintendent |
+| `/admin` | Admin |
+| `/viewer-home` | All authenticated roles, but clients are the intended users |
+| `/dashboard/:jobNumber` | All authenticated roles, with assignment checks for clients |
+| `/invoice-draw/:jobNumber/*` | Admin, Superintendent |
+| `/share/specifications/:token` | Public token access |
+
+## Action rules
+
+| Capability | Admin | Superintendent | Client |
+| --- | --- | --- | --- |
+| Create dashboard | Yes | No | No |
+| Assign dashboard to client | Yes | No | No |
+| Archive or restore dashboard | Yes | No | No |
+| Create draw | Yes | Yes | No |
+| Submit draw for approval | Yes | Yes | No |
+| Approve or reject draw | Yes | No | No |
+| View vendor bills tab | Yes | No | No |
+| Modify vendor bills | Yes | No | No |
+| Generate specification share link | Staff-intended | Staff-intended | No |
+
+`Staff-intended` means the UI allows a signed-in attempt, but the actual permission is enforced by the `share_links` policies rather than a frontend role check alone.
+
+## Practical permission helpers used in the app
+
+| Helper | Meaning |
+| --- | --- |
+| `isAdmin` | Admin role |
+| `isSuperintendent` | Superintendent role, including legacy `user` |
+| `isClient` | Client role, including legacy `viewer` |
+| `canApproveDraws` | Admin only |
+| `canCreateDraws` | Admin or superintendent |
+| `canModifyBills` | Admin only |
+
+## Practical access rules
+
+- Clients can sign in, but they cannot use the internal home route at `/`.
+- Clients can only open dashboards assigned to their `assigned_user_id`.
+- Superintendents can use the internal workflow, but they cannot open admin routes or the bills tab.
+- Admins are the only users who can approve draws or change bill state.
+
+## Related pages
+
+- [Roles and access](/overview/roles-and-access)
+- [Admin panel](/features/admin-panel)

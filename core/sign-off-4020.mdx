@@ -1,0 +1,94 @@
+---
+title: "40-40-20 sign-off"
+description: "The separate PO-line-item workflow used when dashboards run in 40-40-20 mode"
+---
+
+40-40-20 is a separate internal workflow from the standard Statement of Values workflow.
+
+The easiest way to remember the difference:
+
+- standard draw mode is SOV-driven
+- 40-40-20 is PO-line-item-driven
+
+## When it is active
+
+The workflow is active when a dashboard has:
+
+- `minimal_portal = true`
+
+In the UI, that is referred to as **40-40-20 Mode**.
+
+## How it differs from standard draws
+
+| Standard draw | 40-40-20 sign-off |
+| --- | --- |
+| Driven by SOV rows | Driven by PO line items |
+| Uses customer invoices for billed history | Uses referenced vendor bills for billed history |
+| Schedule tab is visible | Schedule tab is hidden |
+| Approval creates a JobTread customer invoice | Approval skips JobTread customer invoice creation |
+| Client sees contractor summary in standard mode | Client sees invoices tab instead |
+
+## Source of truth
+
+The sign-off pipeline is built from:
+
+- JobTread vendor orders
+- vendor bills referenced by those vendor orders
+- matching `jobCostItemId` values on the PO line items
+
+This is intentionally separate from the standard SOV calculation model.
+
+## Row granularity
+
+Each row represents a **PO line item**, not a rolled-up vendor-plus-cost-code row.
+
+In plain terms, this page works at a more detailed tracking level than the normal schedule.
+
+That makes it better suited to:
+
+- package review by line item
+- vendor-facing progress checks
+- internal sign-off before broader invoicing steps
+
+## Inclusion and exclusion rules
+
+Included:
+
+- vendor orders in `pending` or `approved`
+- referenced vendor bills in `pending`, `approved`, and when supported `paid`
+
+Excluded:
+
+- orphan vendor bills not referenced by a PO
+- restricted cost-code families
+
+## Approval behavior
+
+Approving a 40-40-20 package:
+
+- moves the local draw package to `ready`
+- still runs the local approval RPC that creates pending bill records for eligible items
+- does **not** create a JobTread customer invoice
+
+Like standard approval, local bill creation still excludes restricted rows, `VENDOR NOT LET`, and zero-value bill groups.
+
+The biggest difference from standard mode is that approval does not create a JobTread customer invoice.
+
+## UI behavior
+
+### Dashboard route
+
+- shows **Invoices**, **Change Orders**, and **Specifications**
+- hides the contractor summary view
+
+### Internal invoice-draw route
+
+- shows **Draws** and **Invoices**, plus **Vendor Bills** for users who have bill-management access
+- hides **Schedule**
+- defaults to **Draws**
+
+## Related pages
+
+- [Portal modes](/overview/portal-modes)
+- [Invoice draw draws](/features/invoice-draw-draws)
+- [Vendor bills](/features/vendor-bills)

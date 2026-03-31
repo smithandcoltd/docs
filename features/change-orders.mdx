@@ -1,0 +1,45 @@
+---
+title: "Change Orders"
+description: "How the dashboard displays approved change history and running contract totals"
+---
+
+The **Change Orders** tab shows the approved document history that changed the contract.
+
+This is the simplest page to use when you want a clean timeline of how the job value changed over time.
+
+## What the page displays
+
+Each row includes:
+
+- display date based on approval date when available
+- JobTread document link
+- days added
+- subject
+- approved price
+- running contract total
+
+## Source and transformation
+
+The page reads through `useChangeOrders`, which calls `fetch-change-orders` and then reshapes the result for the table.
+
+Important display rules:
+
+- rows are based on approved document ordering from the backend
+- the UI uses approved date when available
+- the running contract total is built cumulatively in the client
+- document type labels are normalized to values like **Construction Agreement**, **Change Order**, and **Selections**
+- the last row acts as a total line for the current contract amount
+
+## Empty and error states
+
+- If no change orders exist, the page shows an empty-state message.
+- If the fetch fails, the page shows an error card.
+
+## Why this page matters
+
+This tab is often the clearest place for both clients and internal users to understand contract growth without reading the more detailed financial tables.
+
+## Related pages
+
+- [Contractor Summary](/features/contractor-summary)
+- [Construction finance basics](/concepts/construction-finance-basics)

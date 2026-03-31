@@ -1,0 +1,100 @@
+---
+title: "JobTread data flow"
+description: "Read paths, write paths, and system ownership between JobTread and the portal"
+---
+
+The portal is not a replacement for JobTread. It is a workflow layer around JobTread.
+
+In practice, it does two things:
+
+1. reshape JobTread data into pages that match OPBG's workflow
+2. store the extra local state that JobTread does not manage
+
+## Ownership model
+
+| Domain | Primary owner |
+| --- | --- |
+| Jobs and job metadata | JobTread |
+| Customer orders, vendor orders, customer invoices, vendor bills | JobTread |
+| Dashboards, access assignments, portal mode flags | Supabase |
+| Draw workflow status and local packaging | Supabase |
+| Share links, waiver tracking, job settings | Supabase |
+
+## Read flow
+
+Most important reads follow the same pattern:
+
+1. The React app calls a hook.
+2. The hook invokes an Edge Function.
+3. The Edge Function validates access.
+4. The Edge Function queries JobTread.
+5. The Edge Function transforms the data into the shape the UI needs.
+6. The app caches the result in React Query.
+
+## Major read paths
+
+| UI area | Function or source | Notes |
+| --- | --- | --- |
+| Dashboard header contract summary | `fetch-contract-summary` | Pulls approved customer-order totals and close-date fields |
+| Contractor Summary and Schedule | `fetch-invoice-schedule` | Builds the SOV-style schedule and vendor-bill context |
+| Change Orders | `fetch-change-orders` | Pulls approved customer-order history and running totals |
+| Specifications | `fetch-specifications` | Combines spec content across the original contract and change orders |
+| 40-40-20 sign-off rows | `fetch-signoff-rows` | Builds a PO-line-item view from vendor orders and referenced vendor bills |
+| Job selector and dashboards | `fetch-jobtread-jobs` plus Supabase `dashboards` | Mixed JobTread plus local dashboard metadata |
+| JobTread task assignee picker | `fetch-jobtread-memberships` | Used for assigning notification recipients |
+
+## Write flow
+
+Writes fall into two buckets: portal-only writes and integration-backed writes.
+
+### Local-only writes
+
+These stay inside Supabase:
+
+- create or archive dashboards
+- assign dashboards to clients
+- set portal mode flags
+- update job settings
+- manage task assignees
+- manage restricted cost codes
+- create or update waiver records
+
+### Integration-backed writes
+
+These update portal state and also trigger a JobTread action:
+
+| Action | Local change | JobTread side effect |
+| --- | --- | --- |
+| Submit draw | `invoice_draws.status` becomes `pending_approval` | Tries to create a JobTread review task for configured assignees |
+| Approve standard draw | Draw becomes `ready` through `approve_invoice_draw_atomic` | Creates a JobTread customer invoice first |
+| Approve standard draw | Local pending bill records are created | No separate JobTread bill is created at this step |
+| Approve 40-40-20 sign-off | Draw becomes `ready` through the same RPC | Skips customer invoice creation |
+| Revert ready draw to draft | Draw resets to `draft` and local bill records are deleted | Voids the linked JobTread customer invoice first, if one exists |
+| Sync vendor bills | Local bill links and statuses are refreshed | Reconciles the portal with JobTread vendor bills |
+
+## Important transformation rules
+
+### Standard draw workflow
+
+- Approved amounts come from customer orders
+- Committed amounts come from vendor orders
+- Previous billed amounts come from customer invoices
+- Vendor bills help with references, syncing, and warning logic, but they do not drive SOV billed totals
+
+### 40-40-20 sign-off workflow
+
+- Source of truth is vendor orders and referenced vendor bills
+- Granularity is PO line item, not rolled-up SOV row
+- Restricted code families are excluded
+
+## One practical rule to remember
+
+If you are asking, "Why does the portal show this row?" the answer is usually a transformed JobTread read.
+
+If you are asking, "Why is this status or bill record here?" the answer is usually local Supabase workflow state.
+
+## Related pages
+
+- [Invoice draw system](/core/invoice-draw-system)
+- [40-40-20 sign-off](/core/sign-off-4020)
+- [Integrations reference](/reference/integrations)

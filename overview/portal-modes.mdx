@@ -1,0 +1,64 @@
+---
+title: "Portal modes"
+description: "How dashboard mode flags change tabs, visibility, and approval side effects"
+---
+
+Each dashboard is controlled by two flags stored on the dashboard record:
+
+- `minimal_portal`
+- `show_invoice_draw`
+
+Those two flags decide both:
+
+1. what the client-facing dashboard looks like
+2. which internal finance workflow the team uses
+
+## Mode summary
+
+| Mode | Trigger | Client-facing dashboard tabs | Internal invoice-draw tabs | Approval side effect |
+| --- | --- | --- | --- | --- |
+| Standard draw | `minimal_portal = false` and `show_invoice_draw = true` | Contractor Summary, Change Orders, Specifications | Schedule, Draws, Vendor Bills | Creates a JobTread customer invoice and local pending bill records |
+| Hide financials | `minimal_portal = false` and `show_invoice_draw = false` | Change Orders, Specifications | Schedule, Draws, Vendor Bills | Still creates a JobTread customer invoice and local pending bill records |
+| 40-40-20 sign-off | `minimal_portal = true` | Invoices, Change Orders, Specifications | Draws, Vendor Bills, Invoices | Skips JobTread customer invoice creation but still creates local pending bill records |
+
+## Mutual exclusion rules
+
+- 40-40-20 mode takes precedence over hide financials.
+- When `minimal_portal` is turned on, the app forces `show_invoice_draw` back to `true`.
+- So a dashboard cannot stay in both modes at the same time.
+
+## What changes in the UI
+
+### Standard draw
+
+- Clients can see the contractor summary financial view.
+- Internal users get the full invoice-draw workflow.
+- The default invoice-draw tab is **Schedule**.
+
+### Hide financials
+
+- Clients lose the contractor summary tab, but they still see non-financial project pages.
+- Internal users still keep the full invoice-draw workflow.
+- If someone tries to open a hidden tab directly, the route redirects them to an allowed tab.
+
+### 40-40-20 sign-off
+
+- The dashboard page shows **Invoices** instead of **Contractor Summary**.
+- The internal invoice-draw page removes **Schedule**.
+- The default invoice-draw tab becomes **Draws**.
+- Approval behaves like sign-off on a package, not standard invoice creation.
+
+## Why this matters
+
+Portal mode changes more than navigation labels. It changes:
+
+- which financial details clients are allowed to see
+- which workflow the internal team is supposed to follow
+- whether approval should create a JobTread customer invoice
+- which feature docs apply to the page you are looking at
+
+## Related pages
+
+- [Invoice draw system](/core/invoice-draw-system)
+- [40-40-20 sign-off](/core/sign-off-4020)
+- [Dashboards](/features/dashboards)

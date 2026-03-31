@@ -1,0 +1,104 @@
+---
+title: "Invoice draw system"
+description: "Standard draw workflow, statuses, calculations, and approval side effects"
+---
+
+The standard invoice-draw workflow is the normal internal billing process for dashboards that are **not** in 40-40-20 mode.
+
+The simple version:
+
+- the team prepares a draw package from schedule data
+- an admin reviews it
+- approval creates the downstream records needed for billing work
+
+## Purpose
+
+This workflow lets internal users:
+
+- review the Statement of Values
+- prepare a draft draw
+- submit the draw for review
+- create a JobTread customer invoice when the draw is approved
+- generate local bill records that accounting can work from after approval
+
+## Lifecycle
+
+| Status | Meaning |
+| --- | --- |
+| `draft` | Still being built and editable |
+| `pending_approval` | Submitted and waiting for admin review |
+| `ready` | Approved and post-approval records have been created |
+| `paid` | Marked paid locally, along with its local bill records |
+
+## Who can do what
+
+| Action | Admin | Superintendent |
+| --- | --- | --- |
+| Create or edit draft draw | Yes | Yes |
+| Submit draw for approval | Yes | Yes |
+| Approve or reject pending draw | Yes | No |
+| Revert ready draw to draft | Yes | No |
+
+## Core calculation model
+
+The draw package is built from schedule data, not from freeform billing entries.
+
+- approved value comes from customer orders
+- commitment comes from vendor orders
+- prior billed history comes from customer invoices
+- user input determines this period's amount
+
+The result is a local draft draw stored in Supabase.
+
+## Approval side effects
+
+Approving a standard draw does much more than flipping a status.
+
+1. The app checks if the draw already has a JobTread customer invoice.
+2. If not, it calls `create-jobtread-invoice`.
+3. The draw stores the returned JobTread invoice ID.
+4. The app calls the `approve_invoice_draw_atomic` RPC.
+5. The RPC marks the draw `ready`.
+6. The RPC creates local pending bill records for eligible draw items.
+
+Important detail: those local bill records are created only at approval time, not when the draft draw is first created.
+
+Another important detail: the approval RPC excludes restricted cost-code families, `VENDOR NOT LET` rows, and zero-value bill groups when it creates local bill records.
+
+## Rejection behavior
+
+Rejecting a draw is the lighter "send it back" action:
+
+- moves it from `pending_approval` back to `draft`
+- stores a rejection note
+- clears submission metadata so it can be resubmitted
+
+## Revert-to-draft behavior
+
+Reverting a ready draw to draft is stronger than rejection because it undoes downstream work.
+
+- the app first voids the related JobTread customer invoice
+- the local draw status resets to `draft`
+- local vendor bill records tied to that draw are deleted
+
+Paid draws cannot be reverted back to draft.
+
+## Submission side effect
+
+Submitting a draw for approval also attempts to create a JobTread task for the configured task assignees.
+
+That task creation is non-blocking. If task creation fails, the draw still moves to `pending_approval`.
+
+## Bills after approval
+
+After approval:
+
+- local bill records exist for the approved draw
+- admin users can review, approve, revert, sync, or link those bills
+- waiver records can be generated and tracked against those local bills
+
+## Related pages
+
+- [Invoice draw schedule](/features/invoice-draw-schedule)
+- [Invoice draw draws](/features/invoice-draw-draws)
+- [Vendor bills](/features/vendor-bills)

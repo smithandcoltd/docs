@@ -1,97 +1,95 @@
 ---
 title: "Introduction"
-description: "Welcome to the new home for your documentation"
+description: "Internal documentation for the OPBG Clients Portal"
 ---
 
-## Setting up
+The **OPBG Clients Portal** is the workflow layer between **JobTread** and the people using OPBG's project-finance processes.
 
-Get your documentation site up and running in minutes.
+In plain language:
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+- **JobTread** holds the source job, order, invoice, bill, and specification data.
+- **The portal** controls what each user sees and which workflow they follow.
+- **Supabase** stores the portal's own state, such as dashboards, draws, bills, user roles, share links, and settings.
 
-## Make it yours
+This docs site is meant to answer two questions quickly:
 
-Design a docs site that looks great and empowers your users.
+1. What does this part of the app do?
+2. Where does its data come from?
 
-<Columns cols={2}>
+It is written for engineers first, but it should also be readable for operations, accounting, and product teammates.
+
+## What this site covers
+
+- who can access which routes and actions
+- what the important construction-finance terms mean in this product
+- how data moves between JobTread, Supabase, and the React app
+- what each major page or tab is responsible for
+- which tables, Edge Functions, and permissions matter in day-to-day work
+
+## Primary source of truth
+
+When documentation and code disagree, trust the code:
+
+- Route behavior: `src/App.tsx`
+- Workflow modes: `src/utils/workflowMode.ts`
+- Page behavior: `src/pages/**` and `src/components/**`
+- Fetching and mutations: `src/hooks/**`
+- Integration logic: `supabase/functions/**`
+
+## Start here
+
+<CardGroup cols={2}>
   <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
+    title="Roles and access"
+    icon="users"
+    href="/overview/roles-and-access"
   >
-    Edit your docs locally and preview them in real time.
-  </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
-
-## Create beautiful pages
-
-Everything you need to create world-class documentation.
-
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
+    Understand which roles can reach which routes and what each role can do.
   </Card>
   <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
+    title="Portal modes"
+    icon="toggle-on"
+    href="/overview/portal-modes"
   >
-    Add sample code to demonstrate how to use your product.
+    See how standard draw, hide financials, and 40-40-20 change the product.
   </Card>
   <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
+    title="Construction finance basics"
+    icon="building-columns"
+    href="/concepts/construction-finance-basics"
   >
-    Display images and other media.
+    Review the domain language behind draws, SOVs, POs, bills, and waivers.
   </Card>
   <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
+    title="System overview"
+    icon="diagram-project"
+    href="/core/system-overview"
   >
-    Write once and reuse across your docs.
+    Learn where state lives and how the app talks to JobTread and Supabase.
   </Card>
-</Columns>
+</CardGroup>
 
-## Need inspiration?
+## Recommended reading order
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+1. Start with **Roles and access** and **Portal modes**.
+2. Read the concept pages if construction draw billing is new to you.
+3. Read the core logic pages before changing workflow or finance behavior.
+4. Use the feature pages when you are working in one part of the app.
+5. Use the reference pages when you need a table, role, or integration lookup.
+
+## Major product surfaces
+
+| Surface | Purpose |
+| --- | --- |
+| Dashboard | The project-facing page for contract summary, change orders, specifications, and in 40-40-20 mode, invoices |
+| Invoice Draw | The internal finance workspace for schedule review, draw packages, bills, and in 40-40-20 mode, invoices |
+| Admin Panel | The admin-only area for users, archived dashboards, restricted cost codes, and task assignees |
+| Viewer Home | The client landing page that shows only dashboards assigned to that client |
+| Public Specifications | The no-login specifications page opened by a share link token |
+
+## Repositories
+
+| Repository | Role |
+| --- | --- |
+| `smithandcoltd/opbg-clients` | Product code and the only reliable source for current behavior |
+| `smithandcoltd/docs` | Mintlify publishing repo for this documentation site |

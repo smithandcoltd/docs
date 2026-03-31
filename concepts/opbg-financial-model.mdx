@@ -1,0 +1,83 @@
+---
+title: "OPBG financial model"
+description: "How the portal models cost-plus work, explicit profit lines, restrictions, and vendor-not-let scope"
+---
+
+The most important idea on this page is simple:
+
+**this portal treats some overhead and profit-related scope as real job lines, not invisible markup.**
+
+That choice affects schedule rows, sign-off behavior, restricted-code handling, and exports.
+
+## Explicit overhead and profit
+
+The important rule is not one fixed list of cost-code numbers. The important rule is that OPBG treats items like:
+
+- general conditions
+- project management or site supervision
+- profit
+- contingency
+
+as real financial scope, not invisible markup.
+
+The exact code numbers are live configuration, not stable documentation facts. Use the current `restricted_cost_codes` data and the Admin Panel as the source of truth.
+
+## Approved versus committed
+
+The portal keeps **approved** and **committed** separate because they answer different questions.
+
+- **Approved** asks: how much scope is allowed on the client side?
+- **Committed** asks: how much has OPBG committed on the cost side?
+
+In code, approved amounts come from customer-order data, while committed amounts come from vendor-order and schedule structures.
+
+Why that matters:
+
+- a line can be fully approved
+- while still having no vendor order yet
+
+That is normal in this system, and the portal is built to handle it.
+
+## Restricted cost codes
+
+Some parent cost-code phases are marked as **accounting-only**.
+
+- Admins can manage the restricted parent list in the Admin Panel.
+- Restriction inheritance flows from parent codes down to sub-codes.
+- Restricted phases are hidden from superintendents in draw creation flows.
+- Sign-off rows also exclude restricted code families.
+
+In plain English: some financial scope is intentionally admin-only, and that restriction follows the whole code family rather than one single row.
+
+## Vendor not let
+
+`VENDOR NOT LET` is the label used when approved scope exists without a matching vendor order.
+
+Typical reasons:
+
+- The vendor has not been selected yet
+- The work will be self-performed
+- Budget scope exists before procurement is complete
+
+In practice, that means:
+
+- The scope still appears in the SOV
+- The row is grouped under `VENDOR NOT LET`
+- Bills for that scope can exist without PO references
+- Downstream bill logic treats those rows differently from normal PO-backed rows
+
+## Why this model matters
+
+This business model explains a lot of the app:
+
+- SOV row generation
+- Draw calculations
+- Sign-off row inclusion or exclusion
+- Vendor bill linking behavior
+- document generation and exports
+
+## Related pages
+
+- [Construction finance basics](/concepts/construction-finance-basics)
+- [Invoice draw schedule](/features/invoice-draw-schedule)
+- [Vendor bills](/features/vendor-bills)
